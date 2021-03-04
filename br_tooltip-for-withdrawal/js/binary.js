@@ -1884,7 +1884,7 @@ var BinarySocketBase = function () {
     var is_disconnect_called = false;
     var is_connected_before = false;
 
-    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=deriv';
+    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=binary';
     var timeouts = {};
     var promises = {};
 
