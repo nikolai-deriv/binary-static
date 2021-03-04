@@ -32332,7 +32332,6 @@ var toTitleCase = __webpack_require__(/*! ../../../../../_common/string_util */ 
 
 var Statement = function () {
     var getStatementData = function getStatementData(statement, currency) {
-        console.log("statement: ", statement);
         var date_obj = new Date(statement.transaction_time * 1000);
         var moment_obj = moment.utc(date_obj);
         var date_str = moment_obj.format('YYYY-MM-DD');
@@ -32451,8 +32450,7 @@ var StatementUI = function () {
 
         // add processing time tooltip for withdrawal
         if (transaction.action_type === 'withdrawal') {
-            console.log('transaction: ', transaction);
-            console.log('statement_data: ', statement_data);
+            console.log(transaction);
             $statement_row.children('.desc').find('span').attr('data-balloon', transaction.withdrawal_details);
         }
 
