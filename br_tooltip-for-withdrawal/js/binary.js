@@ -32450,7 +32450,8 @@ var StatementUI = function () {
 
         // add processing time tooltip for withdrawal
         if (transaction.action_type === 'withdrawal') {
-            console.log(transaction);
+            console.log('transaction: ', transaction);
+            console.log('statement_data: ', statement_data);
             $statement_row.children('.desc').find('span').attr('data-balloon', transaction.withdrawal_details);
         }
 
