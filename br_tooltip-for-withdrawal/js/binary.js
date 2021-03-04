@@ -1884,7 +1884,7 @@ var BinarySocketBase = function () {
     var is_disconnect_called = false;
     var is_connected_before = false;
 
-    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=binary';
+    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=deriv';
     var timeouts = {};
     var promises = {};
 
@@ -32115,7 +32115,7 @@ var StatementInit = function () {
         if (!/^(malta|iom)$/.test(Client.get('landing_company_shortcode'))) return;
 
         BinarySocket.send({ account_statistics: 1 }).then(function (response) {
-            console.log('account stats: ', response.account_statistics);
+            console.log('this is account stats: ', response.account_statistics);
             StatementUI.updateAccountStatistics(response.account_statistics);
         });
     };
