@@ -32089,7 +32089,7 @@ var StatementInit = function () {
         if (obj_date_to_from) $.extend(true, req, obj_date_to_from);
 
         BinarySocket.send(req).then(function (response) {
-            console.log(response);
+            console.log('hello', response);
             statementHandler(response);
             $('.barspinner').setVisibility(0);
         });
