@@ -1884,7 +1884,7 @@ var BinarySocketBase = function () {
     var is_disconnect_called = false;
     var is_connected_before = false;
 
-    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=binary';
+    var socket_url = getSocketURL() + '?app_id=' + getAppId() + '&l=' + getLanguage() + '&brand=deriv';
     var timeouts = {};
     var promises = {};
 
@@ -32089,6 +32089,7 @@ var StatementInit = function () {
         if (obj_date_to_from) $.extend(true, req, obj_date_to_from);
 
         BinarySocket.send(req).then(function (response) {
+            console.log(response);
             statementHandler(response);
             $('.barspinner').setVisibility(0);
         });
