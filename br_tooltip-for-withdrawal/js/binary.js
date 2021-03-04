@@ -1446,7 +1446,9 @@ var LiveChat = function () {
                             threadId = _window$LiveChatWidge.threadId;
 
                         if (threadId) {
-                            customerSDK.deactivateChat({ chatId: chatId });
+                            customerSDK.deactivateChat({ chatId: chatId }).catch(function () {
+                                return null;
+                            });
                         }
                     }
                     resolve();
@@ -26570,6 +26572,7 @@ var Authenticate = function () {
     var is_any_upload_failed = false;
     var is_any_upload_failed_uns = false;
     var onfido_unsupported = false;
+    var authentication_object = {};
     var file_checks = {};
     var file_checks_uns = {};
     var onfido = void 0,
@@ -27293,6 +27296,7 @@ var Authenticate = function () {
             $button.setVisibility(0);
             $('.submit-status').setVisibility(0);
             $('#not_authenticated').setVisibility(0);
+            showCTAButton('identity', 'pending');
             $('#pending_poa').setVisibility(1);
         });
     };
@@ -27304,6 +27308,8 @@ var Authenticate = function () {
             $button_uns.setVisibility(0);
             $('.submit-status-uns').setVisibility(0);
             $('#not_authenticated_uns').setVisibility(0);
+
+            showCTAButton('document', 'pending');
             $('#upload_complete').setVisibility(1);
         });
     };
@@ -27424,6 +27430,22 @@ var Authenticate = function () {
         };
     }();
 
+    var showCTAButton = function showCTAButton(type, status) {
+        var _authentication_objec = authentication_object,
+            needs_verification = _authentication_objec.needs_verification;
+
+        var type_required = type === 'identity' ? 'poi' : 'poa';
+        var type_pending = type === 'identity' ? 'poa' : 'poi';
+        var description_status = status !== 'verified';
+
+        if (needs_verification.includes(type)) {
+            $('#text_' + status + '_' + type_required + '_required').setVisibility(1);
+            $('#button_' + status + '_' + type_required + '_required').setVisibility(1);
+        } else if (description_status) {
+            $('#text_' + status + '_' + type_pending + '_pending').setVisibility(1);
+        }
+    };
+
     var handleComplete = function handleComplete() {
         BinarySocket.send({
             notification_event: 1,
@@ -27437,6 +27459,8 @@ var Authenticate = function () {
                     $('#upload_complete').setVisibility(1);
                     Header.displayAccountStatus();
                     $('#authentication_loading').setVisibility(0);
+
+                    showCTAButton('document', 'pending');
                 });
             }, 4000);
         });
@@ -27538,6 +27562,9 @@ var Authenticate = function () {
                             }
 
                             identity = authentication_status.identity, needs_verification = authentication_status.needs_verification, document = authentication_status.document;
+
+                            authentication_object = authentication_status;
+
                             is_fully_authenticated = identity.status === 'verified' && document.status === 'verified';
                             should_allow_resubmission = needs_verification.includes('identity') || needs_verification.includes('document');
 
@@ -27556,17 +27583,17 @@ var Authenticate = function () {
                             }
 
                             if (!has_personal_details_error) {
-                                _context2.next = 27;
+                                _context2.next = 28;
                                 break;
                             }
 
                             $('#personal_details_error').setVisibility(1);
-                            _context2.next = 61;
+                            _context2.next = 64;
                             break;
 
-                        case 27:
+                        case 28:
                             if (!(has_rejected_reasons && has_submission_attempts)) {
-                                _context2.next = 36;
+                                _context2.next = 37;
                                 break;
                             }
 
@@ -27613,22 +27640,22 @@ var Authenticate = function () {
                                 });
                             }
 
-                            _context2.next = 61;
+                            _context2.next = 64;
                             break;
 
-                        case 36:
+                        case 37:
                             if (!(!has_submission_attempts && is_rejected)) {
-                                _context2.next = 40;
+                                _context2.next = 41;
                                 break;
                             }
 
                             $('#limited_poi').setVisibility(1);
-                            _context2.next = 61;
+                            _context2.next = 64;
                             break;
 
-                        case 40:
+                        case 41:
                             if (needs_verification.includes('identity')) {
-                                _context2.next = 60;
+                                _context2.next = 63;
                                 break;
                             }
 
@@ -27637,46 +27664,49 @@ var Authenticate = function () {
                                 Url.updateParamsWithoutReload({ authentication_tab: 'poa' }, true);
                             }
                             _context2.t0 = identity.status;
-                            _context2.next = _context2.t0 === 'none' ? 45 : _context2.t0 === 'pending' ? 47 : _context2.t0 === 'rejected' ? 49 : _context2.t0 === 'verified' ? 51 : _context2.t0 === 'expired' ? 53 : _context2.t0 === 'suspected' ? 55 : 57;
+                            _context2.next = _context2.t0 === 'none' ? 46 : _context2.t0 === 'pending' ? 48 : _context2.t0 === 'rejected' ? 51 : _context2.t0 === 'verified' ? 53 : _context2.t0 === 'expired' ? 56 : _context2.t0 === 'suspected' ? 58 : 60;
                             break;
 
-                        case 45:
+                        case 46:
                             if (onfido_unsupported) {
                                 $('#not_authenticated_uns').setVisibility(1);
                                 initUnsupported();
                             } else {
                                 initOnfido(service_token_response.token, documents_supported, country_code);
                             }
-                            return _context2.abrupt('break', 58);
+                            return _context2.abrupt('break', 61);
 
-                        case 47:
+                        case 48:
+                            showCTAButton('document', 'pending');
+
                             $('#upload_complete').setVisibility(1);
-                            return _context2.abrupt('break', 58);
-
-                        case 49:
-                            $('#unverified').setVisibility(1);
-                            return _context2.abrupt('break', 58);
+                            return _context2.abrupt('break', 61);
 
                         case 51:
-                            $('#verified').setVisibility(1);
-                            return _context2.abrupt('break', 58);
+                            $('#unverified').setVisibility(1);
+                            return _context2.abrupt('break', 61);
 
                         case 53:
+                            showCTAButton('document', 'verified');
+                            $('#verified').setVisibility(1);
+                            return _context2.abrupt('break', 61);
+
+                        case 56:
                             $('#expired_poi').setVisibility(1);
-                            return _context2.abrupt('break', 58);
-
-                        case 55:
-                            $('#unverified').setVisibility(1);
-                            return _context2.abrupt('break', 58);
-
-                        case 57:
-                            return _context2.abrupt('break', 58);
+                            return _context2.abrupt('break', 61);
 
                         case 58:
-                            _context2.next = 61;
-                            break;
+                            $('#unverified').setVisibility(1);
+                            return _context2.abrupt('break', 61);
 
                         case 60:
+                            return _context2.abrupt('break', 61);
+
+                        case 61:
+                            _context2.next = 64;
+                            break;
+
+                        case 63:
                             // eslint-disable-next-line no-lonely-if
                             if (onfido_unsupported) {
                                 $('#not_authenticated_uns').setVisibility(1);
@@ -27685,58 +27715,60 @@ var Authenticate = function () {
                                 initOnfido(service_token_response.token, documents_supported, country_code);
                             }
 
-                        case 61:
+                        case 64:
                             if (needs_verification.includes('document')) {
-                                _context2.next = 81;
+                                _context2.next = 86;
                                 break;
                             }
 
                             _context2.t1 = document.status;
-                            _context2.next = _context2.t1 === 'none' ? 65 : _context2.t1 === 'pending' ? 68 : _context2.t1 === 'rejected' ? 70 : _context2.t1 === 'suspected' ? 72 : _context2.t1 === 'verified' ? 74 : _context2.t1 === 'expired' ? 76 : 78;
+                            _context2.next = _context2.t1 === 'none' ? 68 : _context2.t1 === 'pending' ? 71 : _context2.t1 === 'rejected' ? 74 : _context2.t1 === 'suspected' ? 76 : _context2.t1 === 'verified' ? 78 : _context2.t1 === 'expired' ? 81 : 83;
                             break;
-
-                        case 65:
-                            init();
-                            $('#not_authenticated').setVisibility(1);
-                            return _context2.abrupt('break', 79);
 
                         case 68:
+                            init();
+                            $('#not_authenticated').setVisibility(1);
+                            return _context2.abrupt('break', 84);
+
+                        case 71:
+                            showCTAButton('identity', 'pending');
                             $('#pending_poa').setVisibility(1);
-                            return _context2.abrupt('break', 79);
-
-                        case 70:
-                            $('#unverified_poa').setVisibility(1);
-                            return _context2.abrupt('break', 79);
-
-                        case 72:
-                            $('#unverified_poa').setVisibility(1);
-                            return _context2.abrupt('break', 79);
+                            return _context2.abrupt('break', 84);
 
                         case 74:
-                            $('#verified_poa').setVisibility(1);
-                            return _context2.abrupt('break', 79);
+                            $('#unverified_poa').setVisibility(1);
+                            return _context2.abrupt('break', 84);
 
                         case 76:
-                            $('#expired_poa').setVisibility(1);
-                            return _context2.abrupt('break', 79);
+                            $('#unverified_poa').setVisibility(1);
+                            return _context2.abrupt('break', 84);
 
                         case 78:
-                            return _context2.abrupt('break', 79);
-
-                        case 79:
-                            _context2.next = 83;
-                            break;
+                            showCTAButton('document', 'verified');
+                            $('#verified_poa').setVisibility(1);
+                            return _context2.abrupt('break', 84);
 
                         case 81:
+                            $('#expired_poa').setVisibility(1);
+                            return _context2.abrupt('break', 84);
+
+                        case 83:
+                            return _context2.abrupt('break', 84);
+
+                        case 84:
+                            _context2.next = 88;
+                            break;
+
+                        case 86:
                             init();
                             $('#not_authenticated').setVisibility(1);
 
-                        case 83:
+                        case 88:
 
                             $('#authentication_loading').setVisibility(0);
                             TabSelector.updateTabDisplay();
 
-                        case 85:
+                        case 90:
                         case 'end':
                             return _context2.stop();
                     }
@@ -30863,14 +30895,13 @@ var PersonalDetails = function () {
             CommonFunctions.getElementById('row_lbl_' + field).setVisibility(1);
         });
 
-        if (name_fields.some(function (key) {
-            return get_settings.immutable_fields.includes(key);
-        })) {
-            CommonFunctions.getElementById('row_name').setVisibility(1);
-            name_fields.forEach(function (field) {
-                return CommonFunctions.getElementById(field).setVisibility(0);
-            });
-        }
+        // if salutation is missing, we want to show first and last name label but salutation selectable separately
+        name_fields.forEach(function (field) {
+            if (get_settings.immutable_fields.includes(field)) {
+                CommonFunctions.getElementById('row_name').setVisibility(1);
+                CommonFunctions.getElementById(field).setVisibility(0);
+            }
+        });
 
         if (!get_settings.immutable_fields.includes('date_of_birth')) {
             $('#date_of_birth').setVisibility(1);
@@ -30914,7 +30945,7 @@ var PersonalDetails = function () {
             return new RegExp(loginid, 'i').test(get_settings.first_name);
         }) || is_virtual;
         if (!hide_name) {
-            get_settings.name = (get_settings.salutation || '') + ' ' + (get_settings.first_name || '') + ' ' + (get_settings.last_name || '');
+            get_settings.name = (get_settings.first_name || '') + ' ' + (get_settings.last_name || '');
         }
 
         if (get_settings.place_of_birth && get_settings.immutable_fields.includes('place_of_birth') && residence_list) {
@@ -32416,8 +32447,9 @@ var StatementUI = function () {
         $statement_row.children('.date').addClass('pre');
         $statement_row.children('.desc').html('<span>' + statement_data.desc + '</span><br>');
 
-        // add processing time popup for withdrawal
+        // add processing time tooltip for withdrawal
         if (transaction.action_type === 'withdrawal') {
+            console.log(transaction);
             $statement_row.children('.desc').find('span').attr('data-balloon', transaction.withdrawal_details);
         }
 
@@ -33556,7 +33588,6 @@ var MetaTraderConfig = function () {
 
     var fields = {
         new_account: {
-            txt_name: { id: '#txt_name', request_field: 'name' },
             txt_main_pass: { id: '#txt_main_pass', request_field: 'mainPassword' },
             txt_re_main_pass: { id: '#txt_re_main_pass' },
             ddl_trade_server: { id: '#ddl_trade_server', is_radio: true },
@@ -33564,7 +33595,11 @@ var MetaTraderConfig = function () {
             additional_fields: function additional_fields(acc_type) {
                 var sample_account = getSampleAccount(acc_type);
                 var is_demo = /^demo_/.test(acc_type);
+                var get_settings = State.getResponse('get_settings');
+                // First name is not set when user has no real account
+                var name = get_settings.first_name && get_settings.last_name ? get_settings.first_name + ' ' + get_settings.last_name : sample_account.title;
                 return _extends({
+                    name: name,
                     account_type: is_demo ? 'demo' : sample_account.market_type,
                     email: Client.get('email'),
                     leverage: sample_account.leverage
@@ -33630,7 +33665,7 @@ var MetaTraderConfig = function () {
 
     var validations = function validations() {
         return {
-            new_account: [{ selector: fields.new_account.txt_name.id, validations: [['req', { hide_asterisk: true }], 'letter_symbol', ['length', { min: 2, max: 101 }]] }, { selector: fields.new_account.txt_main_pass.id, validations: [['req', { hide_asterisk: true }], 'password', 'compare_to_email'] }, { selector: fields.new_account.txt_re_main_pass.id, validations: [['req', { hide_asterisk: true }], ['compare', { to: fields.new_account.txt_main_pass.id }]] }, { selector: fields.new_account.ddl_trade_server.id, validations: [['req', { hide_asterisk: true }]] }],
+            new_account: [{ selector: fields.new_account.txt_main_pass.id, validations: [['req', { hide_asterisk: true }], 'password', 'compare_to_email'] }, { selector: fields.new_account.txt_re_main_pass.id, validations: [['req', { hide_asterisk: true }], ['compare', { to: fields.new_account.txt_main_pass.id }]] }, { selector: fields.new_account.ddl_trade_server.id, validations: [['req', { hide_asterisk: true }]] }],
             password_change: [{ selector: fields.password_change.ddl_password_type.id, validations: [['req', { hide_asterisk: true }]] }, { selector: fields.password_change.txt_old_password.id, validations: [['req', { hide_asterisk: true }]] }, { selector: fields.password_change.txt_new_password.id, validations: [['req', { hide_asterisk: true }], 'password', ['not_equal', { to: fields.password_change.txt_old_password.id, name1: localize('Current password'), name2: localize('New password') }], 'compare_to_email'], re_check_field: fields.password_change.txt_re_new_password.id }, { selector: fields.password_change.txt_re_new_password.id, validations: [['req', { hide_asterisk: true }], ['compare', { to: fields.password_change.txt_new_password.id }]] }],
             password_reset: [{ selector: fields.password_reset.ddl_password_type.id, validations: [['req', { hide_asterisk: true }]] }, { selector: fields.password_reset.txt_new_password.id, validations: [['req', { hide_asterisk: true }], 'password', 'compare_to_email'], re_check_field: fields.password_reset.txt_re_new_password.id }, { selector: fields.password_reset.txt_re_new_password.id, validations: [['req', { hide_asterisk: true }], ['compare', { to: fields.password_reset.txt_new_password.id }]] }],
             verify_password_reset_token: [{ selector: fields.verify_password_reset_token.txt_verification_code.id, validations: [['req', { hide_asterisk: true }], 'token'], exclude_request: 1 }],
@@ -34934,12 +34969,6 @@ var MetaTraderUI = function () {
 
         if (step === 2) {
             _$form.find('input').not(':input[type=radio]').val('');
-
-            var get_settings = State.getResponse('get_settings');
-
-            if (get_settings.first_name && get_settings.last_name) {
-                _$form.find('#txt_name').val(get_settings.first_name + ' ' + get_settings.last_name);
-            }
 
             var trading_servers = State.getResponse('trading_servers');
             var $view_2_button_container = _$form.find('#view_2-buttons');
