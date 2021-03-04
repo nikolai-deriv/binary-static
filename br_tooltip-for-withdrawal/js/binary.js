@@ -32332,6 +32332,7 @@ var toTitleCase = __webpack_require__(/*! ../../../../../_common/string_util */ 
 
 var Statement = function () {
     var getStatementData = function getStatementData(statement, currency) {
+        console.log("statement: ", statement);
         var date_obj = new Date(statement.transaction_time * 1000);
         var moment_obj = moment.utc(date_obj);
         var date_str = moment_obj.format('YYYY-MM-DD');
